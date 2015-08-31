@@ -12,8 +12,8 @@ function updateCounter(type) {
 
 }
 
-
-jQuery.fn.delivery_search_receipt = function (options) {
+(function ($) {
+$.fn.delivery_search_receipt = function (options) {
     var culture = $.delivery_resources.culture;
 
     var parent_div = $(this);
@@ -321,8 +321,8 @@ jQuery.fn.delivery_search_receipt = function (options) {
     }
 
     updateCounter(0);
-
 }
+})(jQuery);
 
 function dateFormat(date) {
     var dt = new Date(date.replace(/-/g, "/").replace(/T/g, " ").substring(0, 19));//new Date(date);
@@ -346,7 +346,8 @@ function addTableRow(obj) {
     return element;
 }
 
-jQuery.fn.delivery_view_tracking = function (options) {
+(function ($) {
+$.fn.delivery_view_tracking = function (options) {
     var culture = $.delivery_resources.culture;
 
     var parent_div = $(this);
@@ -592,12 +593,12 @@ jQuery.fn.delivery_view_tracking = function (options) {
             addCells(row, data_rows[i].CreatedOn, data_rows[i].WarehouseName, data_rows[i].OperationName, "cell");
         }
     };
-
     updateCounter(1);
-
 }
+})(jQuery);
 
-jQuery.fn.delivery_dialog = function (options) {
+(function ($) {
+$.fn.delivery_dialog = function (options) {
     //var parent = $(this).parent();
     var name = 'delivery_dialog_' + $(this).attr('id');
 
@@ -685,9 +686,10 @@ jQuery.fn.delivery_dialog = function (options) {
     delivery_dialog.css('top', top.toString() + 'px');
     delivery_dialog.css('left', left.toString() + 'px');
 }
+})(jQuery);
 
-
-jQuery.fn.delivery_view_map = function (options) {
+(function ($) {
+$.fn.delivery_view_map = function (options) {
     var culture = $.delivery_resources.culture;
     var parent_div = $(this);
 
@@ -866,5 +868,5 @@ jQuery.fn.delivery_view_map = function (options) {
         });    
     };
     updateCounter(2);
-
 }
+})(jQuery);
