@@ -700,35 +700,24 @@ $.fn.delivery_view_map = function (options) {
     script.onload = function () {
         
         var id = parent_div.attr("id");
-
         var width = 500;
         if (options.width != undefined)
             width = options.width;
-
         var height = 350;
         if (options.height != undefined)
             height = options.height;
-
         var longitude = 50.2700;
         if (options.longitude != undefined)
             longitude = options.longitude;
-
         var latitude = 30.3124;
         if (options.latitude != undefined)
             latitude = options.latitude;
-
         var count = 20;
         if (options.count != undefined)
             count = options.count;
-
         var ip = null;
         if (options.ip != undefined)
             ip = options.ip;
-
-
-       /* var country = 1;
-        if (options.country != undefined)
-            country = options.country;*/
 
         parent_div.css("width", width.toString() + "px");
         parent_div.css("height", height.toString() + "px");

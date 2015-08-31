@@ -1,5 +1,4 @@
-﻿$(function () {
-    $.delivery_resources = {
+﻿    $.delivery_resources = {
         culture: 'ru-RU',
         find_receipt: {
             input_number_placeholder: '10 знаков, например, 0010000008',
@@ -62,4 +61,3 @@
             read_more: "Подробнее"
         }
     };
-});
