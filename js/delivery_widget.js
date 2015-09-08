@@ -6,8 +6,7 @@ function screenWidth(){
 }
 
 function updateCounter(type) {
-    $.post('http://www.delivery-auto.com/api/v4/Public/PostWidgetCounterInformation', { type: type }, function (data) {
-        debugger;
+    $.post('http://www.delivery-auto.com/api/v4/Public/PostWidgetCounterInformation', { type: type, url: location.hostname }, function (data) {
     });
 
 }
@@ -858,4 +857,339 @@ $.fn.delivery_view_map = function (options) {
     };
     updateCounter(2);
 }
+})(jQuery);
+
+
+function toggle_panel (obj) {
+    $(obj).find('.du_panel').slideToggle("slow");
+}
+
+(function ($) {
+    $.fn.delivery_calculator = function (options) {
+        var culture = $.delivery_resources.culture;
+        var parent_div = $(this);
+
+        var app = $('<div ng-app="delivery_app"></div>');
+        parent_div.append(app);
+
+        var controller = $('<div ng-controller="delivery_controller" class="delivery_panel" style="width:500px;"></div>').css('text-align', 'left');
+        app.append(controller);
+
+        var add_drop_down = function (obj, label, parameter, function_name, array) {
+            var parent_div = $('<div style="float:left;"></div>');
+            $(obj).append(parent_div);
+            var label = $('<div class="delivery_label">'+label+'</div>').css('margin-bottom', '0px');
+            parent_div.append(label);
+            var select = $('<select class="delivery_drop_down" ng-model="'+parameter+'" ng-change="'+function_name+'()">'+
+                    '<option ng-repeat="item in ' + array + '" value="{{item.id}}">{{item.name}}</option></select>').css('margin-top', '0px');;
+            parent_div.append(select);
+            return parent_div;
+        }
+
+        var add_input = function (obj, label, parameter, additional_parameters, width) {
+            var parent_div = $('<div style="float:left;"></div>');
+            $(obj).append(parent_div);
+            var label = $('<div  style="float:left;" class="delivery_label">' + label + '</div>').css('margin-bottom', '0px');
+            parent_div.append(label);
+            var input = $('<input style="float:left; clear:both;" class="delivery_text_box" ng-model="' + parameter + '" ' + additional_parameters + '/>').css('margin-top', '0px');
+            if (width != undefined)
+                input.css('width', width + 'px');
+            parent_div.append(input);
+            return parent_div;
+        }
+        var line_break = function(obj)
+        {
+            var div = $('<div style="float:left; clear:both;"></div>');
+            $(obj).append(div);
+            return div;
+        }
+        
+
+        add_drop_down(controller, $.delivery_resources.calculator.city_send, 'data.areasSendId', 'SitySendChange', 'SityList');
+        add_drop_down(controller, $.delivery_resources.calculator.warehouse_send, 'data.warehouseSendId', 'WarehouseSendChange', 'WarehouseSendList');
+        line_break(controller);
+
+        add_drop_down(controller, $.delivery_resources.calculator.city_receive, 'data.areasResiveId', 'SityReceiveChange', 'SityList');
+        add_drop_down(controller, $.delivery_resources.calculator.warehouse_receive, 'data.warehouseResiveId', 'WarehouseReceiveChange', 'WarehouseReceiveList');
+        line_break(controller);
+
+        add_drop_down(controller, $.delivery_resources.calculator.pay_currency, 'data.currency', 'CurrencyChange', 'CurrencyList');
+        add_drop_down(controller, $.delivery_resources.calculator.delivery_scheme, 'data.deliveryScheme', null, 'DeliverySchemeList');
+        line_break(controller);
+
+        add_input(controller, $.delivery_resources.calculator.date_send, 'data.dateSend');
+        line_break(controller);
+        var InsuranceValue = add_input(controller, $.delivery_resources.calculator.inshurance_cost, 'data.InsuranceValue', 'ng-blur="reloadInsuranceCost()"');
+
+        var InsuranceCost = $('<div class="delivery_label" style="float:left;" ng-show="data.InsuranceCost>0">{{data.InsuranceCost | number:2}}{{data.currencyStr}}</div>');
+        InsuranceValue.append(InsuranceCost);
+
+        var cargo = $('<div style="float:left; clear:both;" ng-repeat=" eg in data.category"></div>');
+        controller.append(cargo);
+        var deleteButton = $('<div style="float:right;" ng-click=" remove(data.category, $index)"><b>X</b></div>');
+        cargo.append(deleteButton);
+        add_drop_down(cargo, $.delivery_resources.calculator.tarif_category, 'categoryId', null, 'TariffCategoryList');
+
+        /*var cargoParameters = $('<input style="float:left; width:100px;" class="delivery_text_box" ng-model="eg.countPlace" />'+
+                                '<input style="float: left; width: 100px;" class="delivery_text_box" ng-model="eg.helf" />'+
+                                '<input style="float: left; width: 100px;" class="delivery_text_box" ng-model="eg.size" />');
+        cargo.append(cargoParameters);*/
+        add_input(cargo, $.delivery_resources.calculator.count_places, "eg.countPlace", undefined, 100);
+        add_input(cargo, $.delivery_resources.calculator.cargo_weight, "eg.helf", undefined, 100);
+        add_input(cargo, $.delivery_resources.calculator.carho_size, "eg.size", undefined, 100);
+
+        var add_category = $('<a class="delivery_button" style="float:left; clear:both;" ng-click="add(data.category)">'+$.delivery_resources.calculator.add_category+'</a>');
+        add_category.css('line-height', 'inherit');
+        controller.append(add_category);
+
+        var dopUslugaClassificator = $('<div style="float:left; clear:both; width:100%;" onclick="toggle_panel(this);" ng-repeat="du_cl in data.dopUslugaClassificator"></div>');
+        controller.append(dopUslugaClassificator);
+        var classificatorLabel = $('<div class="delivery_accordion" ng-bind="du_cl.name"></div>');
+        dopUslugaClassificator.append(classificatorLabel);
+        var classificatorPanel = $('<div class="du_panel" style="display:none;"></div>');
+        dopUslugaClassificator.append(classificatorPanel);
+        var duRow = $('<div style="display:table-row;" ng-repeat="du in du_cl.dopUsluga"></div>');
+        classificatorPanel.append(duRow);
+        var duHiddenInformation = $('<div style="display:none">{{du.uslugaId}}</div><div style="display:none">{{du.cost}}</div>');
+        duRow.append(duHiddenInformation);
+        var duIformation = $('<div style="width:66%; display: table-cell; text-align:left;">{{du.name}}</div>'+
+                             '<input style="width:66%; display: table-cell;" class="delivery_text_box_du_count" ng-model="du.count" />' +
+                             '<div style="width: 17%;  display: table-cell; text-align: left; ">{{du.cost * du.count | number:2}}{{data.currencyStr}}</div>');
+        duRow.append(duIformation);
+
+        var clculateButton = $('<a class="delivery_button" style="float:left; clear:both;" ng-click="send(data)">' + $.delivery_resources.calculator.calculate + '</a>');
+        clculateButton.css('line-height', 'inherit');
+        controller.append(clculateButton);
+
+        var calculate_dialog = $('<div id="calculate_dialog" class="delivery_panel" style="float:left; clear:both; text-align:left; display:none;">')
+
+        var app = angular.module('delivery_app', []);
+        app.controller('delivery_controller', function ($scope) {
+            $scope.data = {};
+            var obj = { "countPlace": 1, "InvoiceCurrency": 100000001 };
+            $scope.data.category = [];
+            $scope.data.category.push(obj);
+            $scope.data.InsuranceValue = 0;
+
+            //var delivery_url_work = 'http://www.delivery-auto.com/api/v4/Public/';
+            var delivery_url = 'http://localhost:51630/api/v4/Public/';
+
+            var GetDropDownListAjax = function (url, data, success) {
+                $.ajax({
+                    url: url,
+                    type: "GET",
+                    //  dataType: 'json',
+                    data: data,
+                    success: function (data) {
+                        var result = null;
+                        if (data.status == true) {
+                            if (data.data == undefined)
+                                result = data;
+                            else
+                                result = data.data;
+                        }
+                        else if (data.status == undefined) {
+                            result = data;
+                            if (success != undefined)
+                                success(data);
+                        }
+                        if (result == null)
+                            return;
+                        if (success != undefined)
+                            success(result);
+                    },
+                    error: function (data) {
+                        alert(data.status.toString() + ' ' + data.statusText);
+                    }
+                });
+            }
+
+            var data = {
+                culture: culture,
+                fl_all: true
+            };
+
+            GetDropDownListAjax(delivery_url + 'GetAreasList', data, function (data) {
+                $scope.SityList = data;
+                $scope.data.areasSendId = data[0].id;
+                $scope.data.areasResiveId = data[0].id;
+                $scope.$digest();
+                //$scope.$digest();
+                $scope.SitySendChange(true);
+                $scope.SityReceiveChange(true);
+                reloadCurrency();
+            });
+
+            $scope.SitySendChange = function (fl_init) {
+                var data = {
+                    culture: culture,
+                    CityId: $scope.data.areasSendId,
+                    DirectionType: 0
+                };
+
+                GetDropDownListAjax(delivery_url + 'GetWarehousesListByCity', data, function (data) {
+                    $scope.WarehouseSendList = data;
+                    $scope.data.warehouseSendId = data[0].id;
+                    $scope.$digest();
+                    $scope.WarehouseSendChange();
+                });
+                if (!fl_init) {
+                    reloadCurrency();
+                    reloadDeliveryScheme();
+                }
+            }
+            $scope.SityReceiveChange = function (fl_init) {
+                var data = {
+                    culture: culture,
+                    CityId: $scope.data.areasResiveId,
+                    DirectionType: 1
+                };
+
+                GetDropDownListAjax(delivery_url + 'GetWarehousesListByCity', data, function (data) {
+                    $scope.WarehouseReceiveList = data;
+                    $scope.data.warehouseResiveId = data[0].id;
+                    $scope.$digest();
+                    $scope.WarehouseReceiveChange();
+                });
+                if (!fl_init)
+                    reloadCurrency();
+            }
+
+            var reloadCurrency = function () {
+                if ($scope.data.areasSendId == undefined || $scope.data.areasResiveId == undefined)
+                    return;
+                var data = {
+                    culture: culture,
+                    CitySendId: $scope.data.areasSendId,
+                    CityReceiveId: $scope.data.areasResiveId,
+                    PayerType: 2,
+                    PayerId: null
+                };
+
+                GetDropDownListAjax(delivery_url + 'GetCurrency', data, function (data) {
+                    $scope.CurrencyList = data;
+                    $scope.data.currency = data[0].id;
+                    $scope.$digest();
+                    $scope.CurrencyChange();
+                });
+            }
+
+            var reloadDeliveryScheme = function () {
+                if ($scope.data.areasSendId == undefined || $scope.data.areasResiveId == undefined || $scope.data.warehouseResiveId == undefined)
+                    return;
+                var data = {
+                    culture: culture,
+                    CitySendId: $scope.data.areasSendId,
+                    CityReceiveId: $scope.data.areasResiveId,
+                    WarehouseReceiveId: $scope.data.warehouseResiveId
+                };
+
+                GetDropDownListAjax(delivery_url + 'GetDeliveryScheme', data, function (data) {
+                    $scope.DeliverySchemeList = data;
+                    $scope.data.deliveryScheme = data[0].id;
+                    $scope.$digest();
+                });
+
+                GetDropDownListAjax(delivery_url + 'GetTariffCategory', data, function (data) {
+                    $scope.TariffCategoryList = data;
+                    $scope.data.category[0].categoryId = data[0].id;
+                    $scope.$digest();
+                });
+            }
+
+            $scope.reloadInsuranceCost = function () {
+                $scope.data.InsuranceCost = 0
+                if ($scope.data.warehouseResiveId == undefined)
+                    return;
+                var data = {
+                    culture: culture,
+                    CitySendId: $scope.data.areasSendId,
+                    CityReceiveId: $scope.data.areasResiveId,
+                    WarehouseSendId: $scope.data.warehouseSendId,
+                    WarehouseReceiveId: $scope.data.warehouseResiveId,
+                    InsuranceValue: $scope.data.InsuranceValue,
+                    InsuranceCurrency: $scope.data.currency
+                };
+
+                GetDropDownListAjax(delivery_url + 'GetInsuranceCost', data, function (data) {
+                    $scope.data.InsuranceValue = data.MinValue;
+                    $scope.data.InsuranceCost = data.Value;
+                    $scope.$digest();
+                });
+            }
+
+            var reloadDopUslugiClassification = function () {
+                var data = {
+                    culture: culture,
+                    CitySendId: $scope.data.areasSendId,
+                    CityReceiveId: $scope.data.areasResiveId,
+                    currency: $scope.data.currency
+                };
+
+                GetDropDownListAjax(delivery_url + 'GetDopUslugiClassification', data, function (data) {
+                    $scope.data.dopUslugaClassificator = data;
+                    $scope.$digest();
+                });
+            }
+
+            $scope.WarehouseSendChange = function (data) {
+            }
+            $scope.WarehouseReceiveChange = function (data) {
+                reloadDeliveryScheme();
+            }
+
+            $scope.CurrencyChange = function (data) {
+                $scope.data.currencyStr = $scope.data.currency == 100000000 ? ' грн.' : ' руб.'
+                reloadDopUslugiClassification();
+            }
+
+            $scope.remove = function (array, index) {
+                array.splice(index, 1);
+            }
+
+            $scope.add = function (array) {
+                var obj = { "countPlace": 1 };
+                array.push(obj);
+            }
+
+            $scope.send = function (data) {
+                var copy_object = deepCopy(data);
+
+                var object = JSON.stringify(data, function (key, value) {
+                    if ($.isNumeric(value))
+                        return value.toString().replace(".", ",");
+                    else
+                        return value;
+                });
+
+                var object1 = JSON.stringify(copy_object, function (key, value) {
+                    if ($.isNumeric(value))
+                        return value.toString().replace(".", ",");
+                    else
+                        return value;
+                });
+
+                $.ajax({
+                    url: delivery_url + 'PostReceiptCalculate',
+                    type: "POST",
+                    contentType: 'application/json',
+                    dataType: "json",
+                    data: object1,
+                    success: function (data) {
+                        if (data.status == true) {
+                            $scope.result = data.data;
+                            $scope.$digest();
+                            $('#calculate_dialog').delivery_dialog({
+                                width: "auto",
+                                title: "Расчетная стоимость доставки"
+                            });
+                        }
+                    },
+                    error: errorMessageFunc
+                });
+                
+            }
+        });
+
+    }
 })(jQuery);

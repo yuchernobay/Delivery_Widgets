@@ -375,3 +375,9 @@
             border-bottom-style: solid;
             top: 21px;
         }
+img.delivery_logo {
+    background-image: url("http://www.delivery-api.com/Images/del_logo.png");
+    width: 220px;
+    height: 47px;
+    background-repeat: no-repeat;
+}
