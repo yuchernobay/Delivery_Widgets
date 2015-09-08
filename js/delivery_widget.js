@@ -55,7 +55,7 @@ $.fn.delivery_search_receipt = function (options) {
         delivery_loader.css('top', '-36px');
     } else if (type == 'vertical_large')
     {
-        $(this).append('<div class="delivery_label_title_logo"><img src="http://www.delivery-auto.com/Images/logo_small.png"/></div>');//<div>' + $.delivery_resources.find_receipt.logo_text + '</div></div>');
+        $(this).append('<div class="delivery_label_title_logo"><img class="delivery_logo" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="/></div>');//<div>' + $.delivery_resources.find_receipt.logo_text + '</div></div>');
         $(this).append(delivery_child_panel);
 
         var sub_title = $('<div class="delivery_sub_title">' + $.delivery_resources.find_receipt.sub_title + '</div>');
@@ -75,7 +75,7 @@ $.fn.delivery_search_receipt = function (options) {
         delivery_child_panel.css("border-top-style", "none");
         $(this).append(delivery_child_panel);
 
-        var delivery_label_title = $('<div class="delivery_label_title"><img class="delivery_logo_horizontal" src="http://www.delivery-auto.com/Images/logo_small.png"/><div class="delivery_label_title_horizontal">' + $.delivery_resources.find_receipt.dialog_title_horizontal + '</div></div>');
+        var delivery_label_title = $('<div class="delivery_label_title"><img class="delivery_logo delivery_logo_horizontal" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="/><div class="delivery_label_title_horizontal">' + $.delivery_resources.find_receipt.dialog_title_horizontal + '</div></div>');
         delivery_label_title.css('padding', '0px').css('display', 'inline-block');
         delivery_child_panel.append(delivery_label_title);
 
@@ -396,7 +396,7 @@ $.fn.delivery_view_tracking = function (options) {
         delivery_loader.css('top', '-36px');
 
     } else if (type == 'vertical_large') {
-        $(this).append('<div class="delivery_label_title_logo"><img src="http://www.delivery-auto.com/Images/logo_small.png"/></div>');//<div>' + $.delivery_resources.find_receipt.logo_text + '</div></div>');
+        $(this).append('<div class="delivery_label_title_logo"><img class="delivery_logo" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="/></div>');//<div>' + $.delivery_resources.find_receipt.logo_text + '</div></div>');
         $(this).append(delivery_child_panel);
 
         var sub_title = $('<div class="delivery_sub_title">' + $.delivery_resources.view_tracking.sub_title + '</div>');
@@ -415,7 +415,7 @@ $.fn.delivery_view_tracking = function (options) {
         delivery_child_panel.css("border-top-style", "none");
         $(this).append(delivery_child_panel);
 
-        var delivery_label_title = $('<div class="delivery_label_title"><img class="delivery_logo_horizontal" src="http://www.delivery-auto.com/Images/logo_small.png"/><div class="delivery_label_title_horizontal">' + $.delivery_resources.view_tracking.dialog_title_horizontal + '</div></div>');
+        var delivery_label_title = $('<div class="delivery_label_title"><img class="delivery_logo delivery_logo_horizontal" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="/><div class="delivery_label_title_horizontal">' + $.delivery_resources.view_tracking.dialog_title_horizontal + '</div></div>');
         delivery_label_title.css('padding', '0px').css('display', 'inline-block');
         delivery_child_panel.append(delivery_label_title);
 
@@ -811,8 +811,9 @@ $.fn.delivery_view_map = function (options) {
                     clearMapGeoObjects(delivery_map);
                     delivery_map.geoObjects.add(clusterer);
 
-                    var logo = $('<img src="http://www.delivery-auto.com/Images/logo_small.png" class="logo_map">');
-                    logo.css('top', '-' + (height-10)+ 'px')
+                    var logo = $('<img src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" class="logo_map delivery_logo">');
+                    logo.css('top', '-' + (height - 10) + 'px');
+                    logo.css("height", "36px");
                     parent_div.append(logo);
 
                 }).error(function () {
