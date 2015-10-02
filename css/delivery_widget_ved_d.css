@@ -12,3 +12,169 @@ div.delivery_panel { font-family: Arial; font-size: 12px; color: rgb(0, 0, 0); t
     height: 47px;
     background-repeat: no-repeat;
 }
+
+                                           select.delivery_drop_down {
+            border-color: #C8CDD5;
+            background-color: #ffffff;
+            padding: 6px;
+            margin: 8px;
+            width: 230px;
+            font-family: Arial;
+            font-size: 13px;
+            border-style: solid;
+            height: auto;
+            border-width: 1px;
+            border-radius: 5px;
+            display: block;
+            color: #656565;
+        }
+        div.delivery_accordion {
+            background-color: #C8CDD5;
+            padding: 8px;
+            font-size: 13px;
+            font-family: Arial;
+            border: 1px;
+            border-color: #8E9298;
+            border-bottom-style: solid;
+            margin:8px;
+            margin-top:1px;
+            margin-bottom:0px;
+        }
+        input.delivery_text_box_du_count {
+            display: table-cell;
+            border-color: #C8CDD5;
+            background-color: #ffffff;
+            padding: 3px;
+            margin: 4px;
+            width: 50px;
+            font-family: Arial;
+            font-size: 13px;
+            border-style: solid;
+            height: auto;
+            border-width: 1px;
+            border-radius: 5px;
+            color: #656565;
+        }
+        a.delivery_button_calculator {
+            text-decoration: none;
+            background-color: #FACA0A;
+            padding: 8px;
+            margin: 8px;
+            color: black;
+            font-family: Arial;
+            font-size: 12px;
+            height: auto;
+            line-height: 0px;
+            cursor: pointer;
+        }
+        div.delivery_du_panel{
+            margin:9px;
+            margin-top:2px;
+            margin-bottom:2px;
+        }
+        div.delivery_eg_panel {
+            float: left;
+            clear: both;
+            border: 2px;
+            border-top-style: solid;
+            width: 100%;
+            border-color: #FACA0A;
+        }
+        .delivery-form .ng-invalid.ng-touched {
+            outline: none;
+            border-color: #FD2828;
+            box-shadow: 0 0 5px 2px #FD2828;
+        }
+
+        input.delivery_checkbox{
+            float: left;
+            margin: 11px;
+        }
+
+        div.delivery_message {
+            border-width: 2px;
+            border-color: #E9E9E9;
+            border-top-style: solid;
+            border-bottom-style: solid;
+            background-color: #f2f2f2;
+            width: 300px;
+            float: left;
+            clear: both;
+            text-align: left;
+            display: none;
+            padding: 15px;
+        }
+        input.delivery_text_box_calc {
+            border-color: #C8CDD5;
+            background-color: #ffffff;
+            padding: 6px;
+            margin: 8px;
+            width: 230px;
+            font-family: Arial;
+            font-size: 13px;
+            border-style: solid;
+            height: auto;
+            border-width: 1px;
+            border-radius: 5px;
+            display: block;
+            color: #656565;
+            box-sizing: border-box;
+        }
+
+        .ng-scope > form > div> div > div {
+            color:white;
+        }
+
+
+
+
+.tooltip { /* стиль текста, наведя или нажав на который появится пояснение */
+  display: inline-block;
+  position: relative;
+}
+.tooltip > span {
+    position: absolute;
+    bottom: 100%;
+    width: -moz-max-content;
+    width: -webkit-max-content;
+    width: max-content;
+    max-width: 20em;
+    max-height: 80vh;
+    overflow: auto;
+    visibility: hidden; 
+    margin: 0 auto .4em;
+    padding: 0.3em;
+    border: 2px solid rgb(123, 123, 123);
+    background-color: #7B7B7B;
+    color: white;
+    font-size: 13px;
+    line-height: normal;
+    cursor: auto;
+    border-radius: 7px;
+    font-family:Arial;
+}
+.tooltip > input.ng-touched:focus + span,
+.tooltip > select.ng-touched:focus + span,
+.tooltip > input.ng-touched:hover + span,
+.tooltip > select.ng-touched:hover + span {
+  visibility: visible;
+  transition: 0s .4s;
+}
+.tooltip:focus { /* убрать рамку в Хроме */
+  outline: none;
+}
+div.delivery_calculator_result_message {
+    font-weight: bold;
+    color: red;
+    float: left;
+    clear: both;
+    text-align: center;
+    width: 100%;
+    box-sizing: border-box;
+    margin-top: 0px;
+    font-family: Arial;
+    font-size: 14px;
+    padding: 4px;
+    margin: 7px;
+    height: auto;
+}
