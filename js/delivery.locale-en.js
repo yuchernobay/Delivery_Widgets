@@ -98,6 +98,10 @@
 	        date_arrival: 'Date of arrival: ',
 	        total: 'TOTAL:',
 	        cash_on_delvery: 'Amount of the C.O.D.:',
-	        message_101: "You can not deliver the cargo to Pochtomat"
+	        message_101: "Unable to deliver the cargo to Pochtomat, the cargo will be delivered to the warehouse:",
+	        message_no_warehouse: "Only address delivery can be created in this city",
+	        postamat_message: "Pochtomat in PrivatBank. It works only on the delivery of cargo (up to 30 kg)",
+	        climbing_to_floor: "Climbing to the floor",
+	        cargo_error: "Getting info about cargo is impossible"
 		}
 	};

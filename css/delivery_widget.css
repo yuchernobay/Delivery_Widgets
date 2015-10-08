@@ -490,12 +490,20 @@
             border-top-style: solid;
             border-bottom-style: solid;
             background-color: #f2f2f2;
-            width: 300px;
+            width: 360px;
             float: left;
             clear: both;
             text-align: left;
             display: none;
             padding: 15px;
+        }
+
+        div.delivery_postomat_message{
+            color: white;
+            background-color: #57B237;
+            font-weight: bold;
+            padding: 5px;
+            font-family: Arial;
         }
 
 
@@ -552,4 +560,13 @@ div.delivery_calculator_result_message {
     padding: 4px;
     margin: 7px;
     height: auto;
+}
+a.delivery_map_icon {
+    float: left;
+    background-image: url(http://www.delivery-api.com/Images/map_icon.png);
+    width: 22px;
+    height: 22px;
+    background-repeat: no-repeat;
+    background-size: 22px;
+    margin-top: 34px;
 }

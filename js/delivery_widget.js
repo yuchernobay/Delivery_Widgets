@@ -742,9 +742,9 @@ $.fn.delivery_view_map = function (options) {
 
             var buildWarehouseBaloon = function (item) {
                 var privat = "";
-                /*   if (item.WarehouseType == 1) {
-                       privat = $('<div style="color:white; background-color:green;font-weight: bold;padding:5px;">').append($('<span>').text($.delivery_resources.view_map.address.postamat_message));
-            }*/
+                   if (item.WarehouseType == 2) {
+                       privat = $('<div class="delivery_postomat_message">').append($('<span>').text($.delivery_resources.calculator.postamat_message));
+            }
 
                 var header = $('<div class="delivery_warehouse_title">').attr('id', 'header-container').text(item.name);
                 var address = item.address != null ? $('<div>').append($('<div class="delivery_label_map" style="font-weight:bold;">').text($.delivery_resources.view_map.address)).append($('<div class="delivery_label_map">').text(item.address)) : null;
@@ -874,11 +874,12 @@ $.fn.delivery_view_map = function (options) {
 
 
 function toggle_panel (obj) {
-    $(obj).find('.delivery_du_panel').slideToggle("slow");
+    $(obj).parent().find('.delivery_du_panel').slideToggle("slow");
 }
 
 (function ($) {
     $.fn.delivery_calculator = function (options) {
+
         var culture = $.delivery_resources.culture;
         var parent_div = $(this);
 
@@ -907,6 +908,12 @@ function toggle_panel (obj) {
             var title = $('<div class="delivery_label_title">' + $.delivery_resources.calculator.dialog_title + '</div>');
             app.append(title);
         }
+
+
+        var script = document.createElement('script');
+        script.src = 'http://api-maps.yandex.ru/2.0/?load=package.full&mode=debug&lang=' + culture;
+        document.getElementsByTagName('body')[0].appendChild(script);
+
         var form = $('<form name="deliv_frm" class="delivery-form" ng-controller="delivery_controller" novalidate></form>');
         app.append(form);
         var controller = $('<div class="delivery_child_panel" style="display: inline-block; width:500px;"></div>').css('text-align', 'left');
@@ -998,11 +1005,14 @@ function toggle_panel (obj) {
         line_break(controller);
 
         add_drop_down(controller, $.delivery_resources.calculator.city_receive, 'data.areasResiveId', 'SityReceiveChange', 'SityList', settings.cityReceiveId == undefined ? settings.cityReceive : settings.cityReceiveId);
-        add_drop_down(controller, $.delivery_resources.calculator.warehouse_receive, 'data.warehouseResiveId', 'WarehouseReceiveChange', 'WarehouseReceiveList', settings.warehouseReceiveId == undefined ? settings.warehouseReceive : settings.warehouseReceiveId);
+        add_drop_down(controller, $.delivery_resources.calculator.warehouse_receive, 'data.warehouseResiveId', 'WarehouseReceiveChange', 'WarehouseReceiveList', settings.warehouseReceiveId == undefined ? settings.warehouseReceive : settings.warehouseReceiveId).find("select").css("width", "197px");
+        var map_icon = $('<a class="delivery_map_icon" href="javascript:void(0)" ng-click="ShowMap();"></a>');
+        controller.append(map_icon);
+
         line_break(controller);
 
         add_drop_down(controller, $.delivery_resources.calculator.pay_currency, 'data.currency', 'CurrencyChange', 'CurrencyList', settings.currency);
-        add_drop_down(controller, $.delivery_resources.calculator.delivery_scheme, 'data.deliveryScheme', null, 'DeliverySchemeList');
+        add_drop_down(controller, $.delivery_resources.calculator.delivery_scheme, 'data.deliveryScheme', null, 'DeliverySchemeList').attr("ng-hide", "data.onlyOneScheme");
         line_break(controller);
 
         add_input(controller, $.delivery_resources.calculator.date_send, 'data.dateSend', 'type="date" required', undefined, undefined, settings.dateSend);
@@ -1014,8 +1024,12 @@ function toggle_panel (obj) {
 
         add_input(controller, $.delivery_resources.calculator.cash_on_delvery, 'data.CashOnDeliveryValue', 'type="number" required', undefined, undefined, settings.cashOnDelivery != undefined || settings.banDelivery == true ? 1 : undefined);
         
+        line_break(controller);
+        add_input(controller, $.delivery_resources.calculator.climbing_to_floor, 'data.climbingToFloor', 'type="number" required min="0" max="40"', undefined, undefined, undefined).attr("ng-show", "data.deliveryScheme==1 || data.deliveryScheme==2");
 
-        var cargo = $('<div class="delivery_eg_panel" style="float:left; clear:both;' + (settings.cargo != undefined && settings.cargo.length > 0 ? display_none : '') + '" ng-repeat=" eg in data.category" ></div>');
+        
+
+        var cargo = $('<div class="delivery_eg_panel" style="float:left; clear:both;' + (((settings.cargo != undefined && settings.cargo.length > 0) || settings.cargo_url != undefined) ? display_none : '') + '" ng-repeat=" eg in data.category" ></div>');
         controller.append(cargo);
         var deleteButton = $('<div style="float:right;" ng-click=" remove(data.category, $index)" ng-hide="$index==0"><a class="delivery_dialog_close_button" style="margin:3px;"><b>X</b></div>');
         cargo.append(deleteButton);
@@ -1034,19 +1048,25 @@ function toggle_panel (obj) {
         var add_category = $('<div class="delivery_eg_panel"><a class="delivery_button_calculator" style="float:left; clear:both; line-height:inherit; ' + (settings.cargo != undefined && settings.cargo.length > 0 ? display_none : '') + '" ng-hide="data.isPostamat" ng-click="add(data.category)">' + $.delivery_resources.calculator.add_category + '</a></div>');
         controller.append(add_category);
 
-        var dopUslugaClassificator = $('<div style="float:left; clear:both; width:100%;" onclick="toggle_panel(this);" ng-repeat="du_cl in data.dopUslugaClassificator"></div>');
+        var dopUslugaClassificator = $('<div style="float:left; clear:both; width:100%;" ng-repeat="du_cl in data.dopUslugaClassificator"></div>');
         controller.append(dopUslugaClassificator);
-        var classificatorLabel = $('<div class="delivery_accordion" ng-bind="du_cl.name"></div>');
+        var classificatorLabel = $('<div class="delivery_accordion" ng-bind="du_cl.name" onclick="toggle_panel(this);"></div>');
         dopUslugaClassificator.append(classificatorLabel);
         var classificatorPanel = $('<div class="delivery_du_panel" style="display:none;"></div>');
         dopUslugaClassificator.append(classificatorPanel);
-        var duRow = $('<div style="display:table-row;" ng-repeat="du in du_cl.dopUsluga"></div>');
+        var duRow = $('<div class="tooltip" style="display:table-row;" ng-repeat="du in du_cl.dopUsluga"></div>');
         classificatorPanel.append(duRow);
         var duHiddenInformation = $('<div style="display:none">{{du.uslugaId}}</div><div style="display:none">{{du.cost}}</div>');
         duRow.append(duHiddenInformation);
-        var duIformation = $('<div class="delivery_label" style="width:66%; display: table-cell; text-align:left;">{{du.name}}</div>' +
-                             '<input style="width:66%; display: table-cell;" class="delivery_text_box_du_count" ng-model="du.count" />' +
-                             '<div class="delivery_label" style="width: 17%;  display: table-cell; text-align: left; ">{{du.cost * du.count | number:2}}{{data.currencyStr}}</div>');
+        var duIformation = $('<div class="delivery_label" style="width:50%; display: table-cell; text-align:left;">{{du.name}}</div>' +
+                             '<div class="delivery_label" style="width: 17%;  display: table-cell; text-align: left; ">{{du.cost | number:2}}{{data.currencyStr}}</div>' +
+                             '<div class="tooltip" style="width:17%; display: table-cell;"><input class="delivery_text_box_du_count" name="du_count_{{$index}}_{{$parent.$index}}n" ng-model="du.count" type="number"  min="0" max="{{$parent.$index==1 ? 1 : 100}}" />' +
+                             '<span ng-show="deliv_frm.du_count_{{$index}}_{{$parent.$index}}n.$invalid">' +
+                             '<span ng-show="deliv_frm.du_count_{{$index}}_{{$parent.$index}}n.$error.min">' + $.delivery_resources.calculator.error_min + '</span>' +
+                             '<span ng-show="deliv_frm.du_count_{{$index}}_{{$parent.$index}}n.$error.max">' + $.delivery_resources.calculator.error_max + '</span>' +
+                             '<span ng-show="deliv_frm.du_count_{{$index}}_{{$parent.$index}}n.$error.number">' + $.delivery_resources.calculator.error_number + '</span>' +
+                             '</span></div><div class="delivery_label" style="width: 17%;  display: table-cell; text-align: left; ">{{du.cost * du.count | number:2}}{{data.currencyStr}}</div>');
+
         duRow.append(duIformation);
 
         var clculateButton = $('<a class="delivery_button_calculator" style="float:left; clear:both;" ng-click="send(data)">' + $.delivery_resources.calculator.calculate + '</a>');
@@ -1054,8 +1074,28 @@ function toggle_panel (obj) {
         controller.append(clculateButton);
 
         var message_dialog = $('<div id="message_dialog" class="delivery_message"></div>');
+        var delivery_calculator_map = $('<div id="delivery_calculator_map" style="width:700px; height:400px; display:none;"></div>');
 
         controller.append(message_dialog);
+        controller.append(delivery_calculator_map);
+
+        var delivery_map = null;
+        var redMarker = null;
+
+        script.onload = function () {
+            ymaps.ready(function () {
+                delivery_map = new ymaps.Map("delivery_calculator_map", {
+                    center: [50, 2700, 30, 3124],
+                    zoom: 4//,
+                    //type: "yandex#satellite"
+                });
+                delivery_map.behaviors.enable('scrollZoom');
+                delivery_map.controls
+                .add('zoomControl')
+                .add('typeSelector');
+
+            });
+        };
 
         var calculate_dialog = $('<div id="calculate_dialog" class="delivery_panel_dialog" style="width: 580px; float:left; clear:both; text-align:left; display:none;"></div>');
         controller.append(calculate_dialog);
@@ -1098,33 +1138,7 @@ function toggle_panel (obj) {
         app.controller('delivery_controller', function ($scope) {
             $scope.data = {};
             $scope.data.category = [];
-                
-            if (settings.cargo != undefined)
-            {
-                for(i=0; i<settings.cargo.length; i++)
-                {
-                    var obj = { "countPlace": 1, "categoryId": "00000000-0000-0000-0000-000000000000", "helf": 0, "size": 0, "show_count": true, "show_helf": true, "show_size": true, "show_econom": true };
-
-                    if (settings.cargo[i].count != undefined)
-                        obj.countPlace = settings.cargo[i].count;
-                    if (settings.cargo[i].categoryId != undefined)
-                        obj.categoryId = settings.cargo[i].categoryId;
-                    if (settings.cargo[i].weight != undefined)
-                        obj.helf = settings.cargo[i].weight;
-                    if (settings.cargo[i].size != undefined)
-                        obj.size = settings.cargo[i].size;
-                    if (settings.cargo[i].isEconom != undefined)
-                        obj.isEconom = settings.cargo[i].isEconom;
-                    $scope.data.category.push(obj);
-                }
-            }
-            else
-            {
-                var obj = { "countPlace": 1, "categoryId": "00000000-0000-0000-0000-000000000000", "helf": 0, "size": 0, "show_count": true, "show_helf": true, "show_size": true, "show_econom": true };
-
-                $scope.data.category.push(obj);
-            }
-
+              
             $scope.data.InsuranceValue = settings.InsuranceValue == undefined ? 0 : settings.InsuranceValue;
             $scope.data.isPostamat = false;
 
@@ -1133,6 +1147,7 @@ function toggle_panel (obj) {
             $scope.data.dateSend = settings.dateSend == undefined ? new Date() : new Date(settings.dateSend.replace(pattern, '$3-$2-$1'));
             $scope.data.CashOnDeliveryValue = settings.cashOnDelivery == undefined ? 0 : settings.cashOnDelivery;
             $scope.data.CashOnDeliveryValuta = 100000000;
+            $scope.data.climbingToFloor = 0;
 
             $scope.regexInteger = /^[0-9]{1,4}$/;
             $scope.regexDate = /^[0-9]{2,2}.[0-9]{2,2}.[0-9]{2,2}$/;
@@ -1174,7 +1189,8 @@ function toggle_panel (obj) {
 
                 var data = {
                     culture: culture,
-                    fl_all: true
+                    fl_all: true,
+                    include_region_name: true
                 };
 
                 GetDropDownListAjax(delivery_url + 'GetAreasList', data, function (data) {
@@ -1191,6 +1207,55 @@ function toggle_panel (obj) {
                     reloadCurrency();
                 });
             };
+
+            
+            var init_cargo = function()
+            {
+                if (settings.cargo != undefined)
+                {
+                    for(i=0; i<settings.cargo.length; i++)
+                    {
+                        var obj = { "countPlace": 1, "categoryId": "00000000-0000-0000-0000-000000000000", "helf": 0, "size": 0, "show_count": true, "show_helf": true, "show_size": true, "show_econom": true };
+
+                        if (settings.cargo[i].count != undefined)
+                            obj.countPlace = settings.cargo[i].count;
+                        if (settings.cargo[i].categoryId != undefined)
+                            obj.categoryId = settings.cargo[i].categoryId;
+                        if (settings.cargo[i].weight != undefined)
+                            obj.helf = settings.cargo[i].weight;
+                        if (settings.cargo[i].size != undefined)
+                            obj.size = settings.cargo[i].size;
+                        if (settings.cargo[i].isEconom != undefined)
+                            obj.isEconom = settings.cargo[i].isEconom;
+                        $scope.data.category.push(obj);
+                    }
+                }
+                else
+                {
+                    var obj = { "countPlace": 1, "categoryId": "00000000-0000-0000-0000-000000000000", "helf": 0, "size": 0, "show_count": true, "show_helf": true, "show_size": true, "show_econom": true };
+
+                    $scope.data.category.push(obj);
+                }
+
+            };
+
+            if (settings.cargo_url != undefined)
+            {
+                $.ajax({
+                    url: settings.cargo_url,
+                    type: "GET",
+                    dataType: 'json',
+                    success: function (data) {
+                        settings.cargo = data;
+                        init_cargo();
+                    },
+                    error: function (data) {
+                        alert($.delivery_resources.calculator.cargo_error);
+                    }
+                });
+            }
+            else
+                init_cargo();
 
             if (settings.citySend != undefined || settings.cityReceive != undefined || settings.warehouseSend != undefined || settings.warehouseReceive != undefined) {
                 var data = {
@@ -1226,6 +1291,119 @@ function toggle_panel (obj) {
             else {
                 getCity();
             };
+
+            $scope.ShowMap = function() {
+
+                var buildWarehouseBaloon = function (item) {
+                    var privat = "";
+                    if (item.WarehouseType == 2) {
+                        privat = $('<div  class="delivery_postomat_message">').append($('<span>').text($.delivery_resources.calculator.postamat_message));
+                    }
+
+                    var header = $('<div class="delivery_warehouse_title">').attr('id', 'header-container').text(item.name);
+                    var address = item.address != null ? $('<div>').append($('<div class="delivery_label_map" style="font-weight:bold;">').text($.delivery_resources.view_map.address)).append($('<div class="delivery_label_map">').text(item.address)) : null;
+                    var phones = item.phone != null ? $('<div>').append($('<div class="delivery_label_map" style="font-weight:bold;">').text($.delivery_resources.view_map.phone)).append($('<div class="delivery_label_map">').text(item.phone)) : null;
+                    var workingTime = item.working_time != null ? $('<div>').append($('<div class="delivery_label_map" style="font-weight:bold;">').text($.delivery_resources.view_map.work_time)).append($('<div class="delivery_label_map">').text(item.working_time)) : null;
+                    var info = $('<a class="info_button" style="display: block;" target="_blank" href="http://delivery-auto.com/' + culture + '/Representatives/Details/' + item.id + '">' + $.delivery_resources.view_map.read_more + '</a>');
+                    return $('<div>').append($('<div>').attr('id', 'baloon-container').append(privat).append(header).append(address).append(phones).append(workingTime).append(info));
+                };
+                var clearMapGeoObjects = function (map) {
+                    if (map == undefined)
+                        return;
+                    map.geoObjects.each(function (geoObject) {
+                        map.geoObjects.remove(geoObject);
+                    });
+                };
+
+                 $.get('http://www.delivery-auto.com/api/v4/Public/GetFindWarehouses',
+                //$.get('http://localhost:51630/api/v4/Public/GetFindWarehouses',
+                    { culture: culture, Longitude: 0, Latitude: 0, count: 1000, CityId: $scope.data.areasResiveId },
+                function (object, textStatus, jqXHR) {
+                    var geoObjectsDataCollection = new ymaps.GeoObjectCollection();
+                    var data = object.data;
+                    var geoObjectsData = [];
+                    redMarker = null;
+                    for (var i = 0; i < data.length; i++) {
+                        var wr_placemark = new ymaps.Placemark([data[i].longitude, data[i].latitude],
+                        {
+                            clusterCaption: data[i].name,
+                            balloonContent: buildWarehouseBaloon(data[i]).html()
+                        },
+                        {
+                            iconImageHref: data[i].WarehouseType == 0 ? (data[i].IsRegionalCentre ? 'http://www.delivery-auto.com/Content/Images/office.png' : 'http://www.delivery-auto.com/Content/Images/store.png') : 'http://www.delivery-auto.com/Content/Images/postamate.png',
+                            iconImageSize: [67, 63],
+                            iconImageOffset: [-23, -63],
+                            balloonCloseButton: false,
+                            balloonOffset: [0, -40],
+                            hideIconOnBalloonOpen: false
+                        });
+                        if (data[i].id == $scope.data.warehouseResiveId)
+                        {
+                            redMarker = wr_placemark;
+                            redMarker.options.set('iconImageHref', redMarker.options.get('iconImageHref').replace('e.', 'ered.'));
+                        }
+
+                        wr_placemark.events.add("balloonopen", function (event) {
+                            var bal = event.get("balloon");
+                            //ymaps-b-balloon__sprite ymaps-b-balloon__sprite_type_tail
+                            $('.ymaps-b-balloon__sprite_type_tail').hide();
+                            //  $('.ymaps-b-balloon__tr').hide();
+                            //  $('.ymaps-b-balloon__tl').hide();
+                        });
+
+                        wr_placemark.events.add('click', function (e) {
+                            if (redMarker != null) {
+                                redMarker.options.set('iconImageHref', redMarker.options.get('iconImageHref').replace('ered.', 'e.'));
+                            }
+
+                            var placemark = e.get('target');
+                            if (placemark.balloon && !placemark.balloon.isOpen()) {
+                                redMarker = placemark;
+                                redMarker.options.set('iconImageHref', redMarker.options.get('iconImageHref').replace('e.', 'ered.'));
+                            }
+                        });
+
+                        geoObjectsData[i] = wr_placemark;
+                        geoObjectsDataCollection.add(wr_placemark);
+                    }
+                    if (data.length > 0)
+                    {
+                        if (redMarker == null) {
+                            delivery_map.geoObjects.add(geoObjectsDataCollection);
+                            delivery_map.setBounds(geoObjectsDataCollection.getBounds());
+                        }
+                        else
+                            delivery_map.setCenter(redMarker.geometry.getCoordinates());
+
+                        delivery_map.setZoom(16);
+
+                        var clusterer = new ymaps.Clusterer({ maxZoom: [16], clusterDisableClickZoom: false, openBalloonOnClick: true });
+                        clusterer.add(geoObjectsData);
+                        clearMapGeoObjects(delivery_map);
+                        delivery_map.geoObjects.add(clusterer);
+
+                        delivery_calculator_map.delivery_dialog({
+                            width: "auto",
+                            title: $.delivery_resources.calculator.dialog_title,
+                            clone: false
+                        });
+                    }
+                    else
+                    {
+                        $('#message_dialog').html($.delivery_resources.calculator.message_no_warehouse);
+                        $('#message_dialog').delivery_dialog({
+                            width: "auto",
+                            title: $.delivery_resources.calculator.dialog_title,
+                            clone: true
+                        });
+                    }
+                    
+
+                }).error(function () {
+                    //showDialog('Error', '@Delivery.Web.App_GlobalResources.GlobalStrings.DefaultErrorMessage');
+                });
+
+            }
 
             $scope.SitySendChange = function (fl_init) {
                 var data = {
@@ -1302,6 +1480,7 @@ function toggle_panel (obj) {
                     $scope.DeliverySchemeList = data;
                     if (data.length > 0)
                         $scope.data.deliveryScheme = data[0].id;
+                    $scope.data.onlyOneScheme = data.length == 1 ? true : false;
                     $scope.$digest();
                 });
 
@@ -1507,6 +1686,8 @@ function toggle_panel (obj) {
                 if ($scope.data.CashOnDeliveryValue > $scope.data.InsuranceValue)
                     $scope.data.InsuranceValue = $scope.data.CashOnDeliveryValue;
 
+                data.culture = culture;
+
                 var copy_object = deepCopy(data);
 
                 copy_object.descentFromFloor = settings.descentFromFloor == undefined ? 0 : settings.descentFromFloor;
@@ -1538,7 +1719,7 @@ function toggle_panel (obj) {
                         if (data.status == true && data.data.status == true) {
                             $scope.result = data.data;
                             if (data.data.messageCode == 101)
-                                $scope.result.message = $.delivery_resources.calculator.message_101;
+                                $scope.result.message = $.delivery_resources.calculator.message_101 + $scope.result.warehouseResiveIdName;
                             $scope.$digest();
                             $('#calculate_dialog').delivery_dialog({
                                 width: "auto",
@@ -1571,3 +1752,5 @@ function toggle_panel (obj) {
         updateCounter(3);
     }
 })(jQuery);
+
+
